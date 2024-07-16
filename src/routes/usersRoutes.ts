@@ -3,10 +3,10 @@ const router = Router();
 
 const userController = require("../controllers/userController");
 
-router.post('/', userController.createUser);
-router.get('/view', userController.readAllUsers);
-router.get('/:id', userController.readUserById);
-// usersRouter.put('/users/:id', getUser)
-// usersRouter.delete('/users/:id', getUser)
+router.post('/create', userController.createUser);
+router.get('/readAll', userController.readAllUsers);
+router.get('/read/:id', userController.readUserById);
+router.post('/update/:id', userController.updateUser);
+router.post('/delete/:id', userController.deleteUser);
 
 export default router;
