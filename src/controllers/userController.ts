@@ -5,10 +5,10 @@ const prisma = new PrismaClient()
 
 // CREATE
 const createUser = async (req: Request, res: Response): Promise<Response> => {
-    console.log(`Attempting insertion to 'users' table row...`);
+    console.log(`Attempting insertion to 'user' table row...`);
     const { name, email } = req.body;
     try {
-        const user = await prisma.users.create({
+        const user = await prisma.user.create({
             data: {
                 name: name,
                 email: email
@@ -32,18 +32,18 @@ const createUser = async (req: Request, res: Response): Promise<Response> => {
 
 // READ ALL
 const readAllUsers = async (req: Request, res: Response): Promise<Response> => {
-    console.log(`Attempting read all of 'users' table...`);
+    console.log(`Attempting read all of 'user' table...`);
     try {
-        const users = await prisma.users.findMany();
-        if(users) {
+        const user = await prisma.user.findMany();
+        if(user) {
             return res.status(200)
-                    .json(users);
+                    .json(user);
         } else {
             return res.status(404)
-                    .send("Users table may be empty.");
+                    .send("User table may be empty.");
         }
     } catch(e) {
-        console.log(`Built-in exception at userController.readAllUsers.\nException message:` + e);
+        console.log(`Built-in exception at userController.readAllUser.\nException message: ` + e);
     }
     return res.status(500)
             .send("Internal server error.");
@@ -51,10 +51,10 @@ const readAllUsers = async (req: Request, res: Response): Promise<Response> => {
 
 // READ
 const readUserById = async (req: Request, res: Response): Promise<Response> => {
-    console.log(`Attempting read of 'users' table row...`);
-    const user_id = parseInt(req.params.id);
+    console.log(`Attempting read of 'user' table row...`);
+    const user_id = parseInt(req.params.user_id);
     try {
-        const user = await prisma.users.findFirst({
+        const user = await prisma.user.findFirst({
             where: {
                 user_id: user_id
             }
@@ -76,12 +76,12 @@ const readUserById = async (req: Request, res: Response): Promise<Response> => {
 
 // UPDATE // Need to handle state change logic somewhere on front-end
 const updateUser = async (req: Request, res: Response): Promise<Response> => {
-    console.log(`Attempting update of 'users' table row...`);
-    const user_id = parseInt(req.params.id);
+    console.log(`Attempting update of 'user' table row...`);
+    const user_id = parseInt(req.params.user_id);
     const { name, email } = req.body;
     
     try {
-        const user = await prisma.users.update({
+        const user = await prisma.user.update({
             where: {
                 user_id: user_id
             },
@@ -108,10 +108,10 @@ const updateUser = async (req: Request, res: Response): Promise<Response> => {
 
 // DELETE
 const deleteUser = async (req: Request, res: Response): Promise<Response> => {
-    console.log(`Attempting deletion of 'users' table row...`);
-    const user_id = parseInt(req.params.id);
+    console.log(`Attempting deletion of 'user' table row...`);
+    const user_id = parseInt(req.params.user_id);
     try {
-        const user = await prisma.users.delete({
+        const user = await prisma.user.delete({
             where: {
                 user_id: user_id
             }
