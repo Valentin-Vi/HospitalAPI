@@ -1,18 +1,14 @@
 import { Request, Response } from "express";
-import { eraseUser, registerUser, authenticateUser } from "../service/userService";
-const bcrypt = require("bcrypt");
+import { eraseUser, registerUser, authenticateUser, readUserById, readAllUsers } from "../service/userService";
 
 // CREATE
-export const registration = async (
-    req: Request,
-    res: Response
-): Promise<Response> => {
+export const registration = async (req: Request, res: Response): Promise<Response> => {
     // Validate inputs
     const email = req.body.email;
     const password = req.body.password;
     const name = req.body.name;
     const lastname = req.body.lastname;
-    if (name === undefined || name === "" || email === undefined || email === "") {
+    if (name === undefined || name === "" || email === undefined || email === "" || lastname === undefined || lastname === "") {
         return res
             .status(400)
             .send("Invalid inputs for fields name and/or email.");
@@ -20,7 +16,7 @@ export const registration = async (
 
     // Make service call and wait for promise to ressolve to type User.
     const user = await registerUser(email, password, name, lastname, 0);
-    if(user) {
+    if(!user) {
         return res
             .status(500)
             .send(`Error creting user...`);
@@ -30,10 +26,7 @@ export const registration = async (
         .json(user);
 };
 
-export const deletion = async (
-    req: Request,
-    res: Response
-): Promise<Response> => {
+export const deletion = async (req: Request, res: Response): Promise<Response> => {
     const user_id = req.body.user_id;
     if (user_id === undefined) {
         // This line is assuming that the user_id body attribute is of numerical type and not a string.
@@ -52,27 +45,52 @@ export const deletion = async (
         .send(`Succesfully deleted user of user_id=${user_id}.`);
 };
 
-export const authentication = async(
+export const login = async(
     req: Request,
     res: Response
 ): Promise<Response> => {
-    const email = req.body.email;
-    const password = req.body.password;
-    if(email === undefined || password === undefined) {
+    const { email, password } = req.body;
+    if(email === undefined || email === null || password === undefined || password === null) {
         return res
-            .status(400)
-            .send("Invalid inputs for fields email and/or password.");
+            .status(400);
     }
     // Hash password and make service call
-    const user = await authenticateUser(email, await bcrypt.hash(password, 10));
+    const jwt = await authenticateUser(email, password);
     // Validate response
-    if(!user) {
+    if(!jwt) {
         return res
-            .status(404)
-            .send("Email and/or password are incorrect.");
+            .status(404);
     }
     // Send response object
     return res
         .status(200)
-        .json(user);
+        .json(jwt);
 };
+
+export const readAll = async (
+    req: Request,
+    res: Response
+): Promise<Response> => {
+    const users = await readAllUsers();
+    if(users) {
+        return res.status(200)
+            .json(users);
+    }
+    return res.status(500);
+}
+
+export const readById = async (
+    req: Request,
+    res: Response
+): Promise<Response> => {
+    const user_id = req.body
+    if(user_id === null || user_id === undefined) {
+        return res.status(400);
+    }
+    const user = await readUserById(user_id);
+    if(user) {
+        return res.status(200)
+            .json(user);
+    }
+    return res.status(500);
+}

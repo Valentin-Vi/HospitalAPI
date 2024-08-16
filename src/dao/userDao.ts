@@ -1,9 +1,8 @@
-import { hash } from "crypto";
 import { User } from "../model/userModel";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const createUser = async (
+export const create = async (
     email: string,
     hashedPassword: string,
     name: string,
@@ -11,7 +10,6 @@ export const createUser = async (
     authority: number
 ): Promise<User | null> => {
     try {
-        console.log(`Attempting insertion to 'user' table row...`);
         const createdUser = await prisma.user.create({
             data: {
                 email: email,
@@ -21,85 +19,96 @@ export const createUser = async (
                 authority: authority
             },
         });
-        return new User(createdUser.user_id, createdUser.email, undefined, createdUser.name, createdUser.lastname, createdUser.authority);
+        return new User(
+            createdUser.user_id,
+            createdUser.email,
+            undefined,
+            createdUser.name,
+            createdUser.lastname,
+            createdUser.authority);
     } catch (e) {
-        console.log(
-            `Built-in exception at userDao.createUser. Provided parameters name=${name}, email=${email}.\nException message:` +
-                e
-        );
-        return null;
+        console.log(e);
     }
+    return null;
 };
 
-export const readAllUsers = async (): Promise<User[] | null> => {
+export const readAll = async (): Promise<User[] | null> => {
     try {
-        console.log(`Attempting read all of 'user' table...`);
         const users = await prisma.user.findMany();
         return users.map(
-            (user) => new User(user.user_id, user.email, user.password, user.name, user.lastname, user.authority)
+            (user) => new User(
+                user.user_id,
+                user.email,
+                user.password,
+                user.name,
+                user.lastname,
+                user.authority)
         );
     } catch (e) {
-        console.log(
-            `Built-in exception at userDao.readAllUser.\nException message: ` +
-                e
-        );
+        console.log(e);
         return null;
     }
 };
 
-export const readUserById = async (user_id: number): Promise<User | null> => {
+export const readById = async (user_id: number): Promise<User | null> => {
     try {
-        console.log(`Attempting read of 'user' table row...`);
-        const foundUser = await prisma.user.findFirst({
+        const readUser = await prisma.user.findFirst({
             where: {
                 user_id: user_id,
             },
         });
-        if (foundUser !== null) {
-            return new User(foundUser.user_id, foundUser.email, foundUser.password, foundUser.name, foundUser.lastname, foundUser.authority);
+        if (readUser !== null) {
+            return new User(
+                readUser.user_id,
+                readUser.email,
+                readUser.password,
+                readUser.name,
+                readUser.lastname,
+                readUser.authority);
         }
     } catch (e) {
-        console.log(
-            `Built-in exception at userDao.readUserById. Provided parameters user_id=${user_id}.\nException message:` +
-                e
-        );
+        console.log(e);
     }
     return null;
 };
 
-export const readUserByEmail = async (email: string): Promise<User | null> => {
+export const readByEmail = async (email: string): Promise<User | null> => {
     try {
-        console.log(`Attempting read of 'user' table row...`);
-        const foundUser = await prisma.user.findFirst({
+        const readUser = await prisma.user.findFirst({
             where: {
                 email: email,
             },
         });
-        if (foundUser !== null) {
-            return new User(foundUser.user_id, foundUser.email, foundUser.password, foundUser.name, foundUser.lastname, foundUser.authority);
+        if (readUser !== null) {
+            return new User(
+                readUser.user_id,
+                readUser.email,
+                readUser.password,
+                readUser.name,
+                readUser.lastname,
+                readUser.authority);
         }
     } catch (e) {
-        console.log(
-            `Built-in exception at userDao.readUserByName. Provided parameters name=${name}.\nException message:` +
-                e
-        );
+        console.log(e);
     }
     return null;
 };
 
-export const updateUser = async (user: User): Promise<User | null> => {
+export const update = async (user: User): Promise<User | null> => {
     try {
-        console.log(`Attempting update of 'user' table row...`);
         const updatedUser = await prisma.user.update({
             where: {
                 user_id: user.getUser_id(),
             },
             data: {
-                name: user.getName(),
                 email: user.getEmail(),
+                password: user.getPassword(),
+                name: user.getName(),
+                lastname: user.getLastname(),
+                authority: user.getAuthority(),
             },
         });
-        if (updateUser !== null) {
+        if (updatedUser !== null) {
             return new User(
                 updatedUser.user_id,
                 updatedUser.email,
@@ -110,30 +119,29 @@ export const updateUser = async (user: User): Promise<User | null> => {
             );
         }
     } catch (e) {
-        console.log(
-            `Built-in exception at userDao.updateUser. Provided parameters user_id=${user.getUser_id()}, name=${user.getName()}, email=${user.getEmail()}.\nException message:` +
-                e
-        );
+        console.log(e);
     }
     return null;
 };
 
-export const deleteUser = async (user_id: number): Promise<User | null> => {
+export const remove = async (user_id: number): Promise<User | null> => {
     try {
-        console.log(`Attempting deletion of 'user' table row...`);
         const user = await prisma.user.delete({
             where: {
                 user_id: user_id,
             },
         });
         if (user) {
-            return new User(user.user_id, user.email, user.password, user.name, user.lastname, user.authority);
+            return new User(
+                user.user_id,
+                user.email,
+                user.password,
+                user.name,
+                user.lastname,
+                user.authority);
         }
     } catch (e) {
-        console.log(
-            `Built-in exception at userDao.deleteUser. Provided parameter user_id=${user_id}.\nException message:` +
-                e
-        );
+        console.log(e);
     }
     return null;
 };
